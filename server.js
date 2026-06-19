@@ -104,10 +104,10 @@ app.get('/schema', (req, res) => {
         ],
         endpoints: {
             list: "/movies",
-            detail: "/movies/:id",
+            detail: "/movies/{id}",
             create: "/movies",
-            update: "/movies/:id",
-            delete: "/movies/:id"
+            update: "/movies/{id}",
+            delete: "/movies/{id}"
         }
     });
 });
