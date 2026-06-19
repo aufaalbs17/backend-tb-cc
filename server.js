@@ -62,6 +62,11 @@ const studentInfo = {
     nim: process.env.STUDENT_NIM
 };
 
+// 0. Endpoint / (Root) untuk test connection
+app.get('/', (req, res) => {
+    res.status(200).send('API is running');
+});
+
 // 1. Endpoint /health
 app.get('/health', async (req, res) => {
     const dbConnected = await isDatabaseConnected();
@@ -114,9 +119,8 @@ app.get('/movies', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM movies');
         res.json({
-            status: "success",
-            message: "Data retrieved successfully",
-            data: rows
+            items: rows,
+            total: rows.length
         });
     } catch (err) {
         res.status(500).json({ status: "error", message: err.message });
@@ -128,11 +132,7 @@ app.get('/movies/:id', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM movies WHERE id = ?', [req.params.id]);
         if (rows.length > 0) {
-            res.json({
-                status: "success",
-                message: "Data retrieved successfully",
-                data: rows[0]
-            });
+            res.json(rows[0]);
         } else {
             res.status(404).json({ status: "error", message: "Data not found" });
         }
@@ -147,11 +147,7 @@ app.post('/movies', async (req, res) => {
         const { title, director, year } = req.body;
         const [result] = await pool.query('INSERT INTO movies (title, director, year) VALUES (?, ?, ?)', [title, director, year || null]);
         
-        res.json({
-            status: "success",
-            message: "Data created successfully",
-            data: { id: result.insertId, title, director, year }
-        });
+        res.json({ id: result.insertId, title, director, year });
     } catch (err) {
         res.status(500).json({ status: "error", message: err.message });
     }
@@ -165,11 +161,7 @@ app.put('/movies/:id', async (req, res) => {
         
         await pool.query('UPDATE movies SET title = ?, director = ?, year = ? WHERE id = ?', [title, director, year || null, id]);
         
-        res.json({
-            status: "success",
-            message: "Data updated successfully",
-            data: { id: parseInt(id), title, director, year }
-        });
+        res.json({ id: parseInt(id), title, director, year });
     } catch (err) {
         res.status(500).json({ status: "error", message: err.message });
     }
